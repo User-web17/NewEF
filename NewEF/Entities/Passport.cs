@@ -8,6 +8,7 @@ namespace NewEF.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public string Number { get; set; } = null!;
         public int StudentId { get; set; }
         public Student Student { get; set; } = null!;
     }
