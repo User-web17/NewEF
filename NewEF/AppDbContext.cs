@@ -18,6 +18,7 @@ namespace NewEF
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Department> Departments { get; set; }
+        public DbSet<Passport> Passports { get; set; }
 
         public AppDbContext()
         {
