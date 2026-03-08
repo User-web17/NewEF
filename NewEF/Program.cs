@@ -15,6 +15,11 @@ namespace NewEF
             {
                 Console.WriteLine($"{student.StudentName} | {student.GroupName}");
             }
+
+            foreach (var student in db.TeacherSubjectViews)
+            {
+                Console.WriteLine($"{student.TeacherName} | {student.SubjectName}");
+            }
         }
 
         static void InitializeDB(AppDbContext db)

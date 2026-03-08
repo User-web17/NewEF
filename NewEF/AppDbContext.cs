@@ -20,6 +20,7 @@ namespace NewEF
         public DbSet<Department> Departments { get; set; }
         public DbSet<Passport> Passports { get; set; }
         public DbSet<StudentGroupView> StudentGroupViews { get; set; }
+        public DbSet<TeacherSubjectView> TeacherSubjectViews { get; set; }
 
         public AppDbContext()
         {
@@ -41,6 +42,12 @@ namespace NewEF
             modelBuilder.Entity<StudentGroupView>(sgv =>
             {
                 sgv.ToView("vw_StudentsGroups")
+                .HasNoKey();
+            });
+
+            modelBuilder.Entity<TeacherSubjectView>(v =>
+            {
+                v.ToView("vw_TeachersSubjects")
                 .HasNoKey();
             });
 
