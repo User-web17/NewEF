@@ -11,6 +11,17 @@ namespace NewEF
 
             //InitializeDB(db);
 
+            CreateGroup(db);
+            CreateStudent(db);
+            CreateTeacher(db);
+            CreateSubject(db);
+
+            ReadStudents(db);
+
+            UpdateStudent(db, 1);
+
+            DeleteStudent(db, 2);
+
             foreach (var student in db.StudentGroupViews)
             {
                 Console.WriteLine($"{student.StudentName} | {student.GroupName}");
@@ -121,7 +132,7 @@ namespace NewEF
             var groupE = new Group
             {
                 Name = "UKR-505",
-                Students = new List<Student>(),
+                Students = new List<Student>(),            
             };
 
             var teacher1 = new Teacher
@@ -233,139 +244,239 @@ namespace NewEF
             Console.WriteLine("Database initialized successfully.");
         }
 
-        static void CreateSampleData(AppDbContext db)
+        static void CreateGroup(AppDbContext db)
         {
-            var dep = new Department
+            string groupName = "LOL-606";
+
+            var existingGroup = db.Groups.FirstOrDefault(g => g.Name == groupName);
+
+            if (existingGroup != null)
             {
-                Name = "Computer Science",
-                Description = "Department of Computer Science",
-                Teachers = new List<Teacher>(),
-                Subjects = new List<Subject>()
-            };
-
-            var algo = new Subject
-            {
-                Name = "Algorithms",
-                Description = "Intro to algorithms",
-                Department = dep,
-                Teachers = new List<Teacher>()
-            };
-
-            var teacher = new Teacher
-            {
-                FirstName = "Ivan",
-                LastName = "Ivanov",
-                BirthDate = new DateTime(1985, 5, 20),
-                Salary = 35000m,
-                Department = dep,
-                Subjects = new List<Subject>(),
-                Groups = new List<Group>()
-            };
-
-            dep.Subjects.Add(algo);
-            dep.Teachers.Add(teacher);
-            teacher.Subjects.Add(algo);
-            algo.Teachers.Add(teacher);
-
-            db.Departments.Add(dep);
-            db.Teachers.Add(teacher);
-            db.Subjects.Add(algo);
-
-            db.SaveChanges();
+                Console.WriteLine("Group already exists.");
+                return;
+            }
 
             var group = new Group
             {
-                Name = "CS-101",
+                Name = groupName,
                 Students = new List<Student>()
             };
+
             db.Groups.Add(group);
             db.SaveChanges();
 
+            Console.WriteLine("Group created.");
+        }
+
+        static void ReadGroups(AppDbContext db)
+        {
+            var groups = db.Groups
+                           .Include(g => g.Students)
+                           .ToList();
+
+            foreach (var g in groups)
+            {
+                Console.WriteLine(g.ToString());
+            }
+        }
+
+        static void UpdateGroup(AppDbContext db, int id)
+        {
+            var group = db.Groups.FirstOrDefault(g => g.Id == id);
+
+            if (group == null) return;
+
+            group.Name = "UPDATED-GROUP";
+
+            db.Groups.Update(group);
+            db.SaveChanges();
+
+            Console.WriteLine("Group updated.");
+        }
+
+        static void DeleteGroup(AppDbContext db, int id)
+        {
+            var group = db.Groups.FirstOrDefault(g => g.Id == id);
+
+            if (group == null) return;
+
+            db.Groups.Remove(group);
+            db.SaveChanges();
+
+            Console.WriteLine("Group deleted.");
+        }
+
+        static void CreateStudent(AppDbContext db)
+        {
+            string email = "lol131.yo@gmail.com";
+
+            var existingStudent = db.Students.FirstOrDefault(s => s.Email == email);
+
+            if (existingStudent != null)
+            {
+                Console.WriteLine("Student already exists.");
+                return;
+            }
+
+            var group = db.Groups.FirstOrDefault();
+
+            if (group == null)
+            {
+                Console.WriteLine("No groups found.");
+                return;
+            }
+
             var student = new Student
             {
-                FirstName = "Petro",
-                LastName = "Petrenko",
-                Email = "petro.petrenko@example.com",
-                Birthdate = new DateTime(2005, 3, 1),
-                Scholarship = 120.50m,
-                GroupId = group.Id,
-                _attendanceForm = Student.AttendanceForm.Offline,
+                FirstName = "Mihaylo",
+                LastName = "Student",
+                Email = email,
+                GroupId = group.Id
             };
+
             db.Students.Add(student);
             db.SaveChanges();
 
-            var passport = new Passport
-            {
-                Name = $"{student.FirstName} {student.LastName}",
-                Number = "123456789",
-                StudentId = student.Id
-            };
-            db.Passports.Add(passport);
-            db.SaveChanges();
-
-            student.PassportId = passport.Id;
-            db.Students.Update(student);
-            db.SaveChanges();
-
-            Console.WriteLine("Sample data created.");
-        }
-
-        static void ReadDepartments(AppDbContext db)
-        {
-            Console.WriteLine("=== Departments (with teachers and subjects) ===");
-            var deps = db.Departments
-                         .Include(d => d.Teachers)
-                         .Include(d => d.Subjects)
-                         .ToList();
-
-            foreach (var d in deps)
-            {
-                Console.WriteLine(d.ToString());
-            }
-        }
-
-        static void ReadTeachers(AppDbContext db)
-        {
-            Console.WriteLine("=== Teachers (with subjects and groups) ===");
-            var teachers = db.Teachers
-                             .Include(t => t.Subjects)
-                             .Include(t => t.Groups)
-                             .Include(t => t.Department)
-                             .ToList();
-
-            foreach (var t in teachers)
-            {
-                Console.WriteLine(t.ToString());
-            }
+            Console.WriteLine("Student created.");
         }
 
         static void ReadStudents(AppDbContext db)
         {
-            Console.WriteLine("=== Students (with group and passport) ===");
             var students = db.Students
-                             .Include(s => s.Group)
-                             .Include(s => s.Passport)
-                             .ToList();
+                .Include(s => s.Group)
+                .Include(s => s.Passport)
+                .ToList();
 
             foreach (var s in students)
             {
-                Console.WriteLine(s.ToString());
+                Console.WriteLine(
+                    $"{s.Id} | {s.FirstName} {s.LastName} | {s.Email} | " +
+                    $"{s.Group?.Name} | {s._attendanceForm}"
+                );
+
                 if (s.Passport != null)
-                    Console.WriteLine($"  Passport: {s.Passport.Id} | {s.Passport.Number}");
+                {
+                    Console.WriteLine($"Passport: {s.Passport.Number}");
+                }
             }
         }
 
-        static void ReadPassports(AppDbContext db)
+        static void UpdateStudent(AppDbContext db, int id)
         {
-            Console.WriteLine("=== Passports (with student) ===");
-            var passports = db.Passports
-                              .Include(p => p.Student)
-                              .ToList();
+            var student = db.Students.FirstOrDefault(s => s.Id == id);
 
-            foreach (var p in passports)
+            if (student == null) return;
+
+            student.Scholarship = 500;
+
+            db.Students.Update(student);
+            db.SaveChanges();
+
+            Console.WriteLine("Student updated.");
+        }
+
+        static void DeleteStudent(AppDbContext db, int id)
+        {
+            var student = db.Students.FirstOrDefault(s => s.Id == id);
+
+            if (student == null) return;
+
+            db.Students.Remove(student);
+            db.SaveChanges();
+
+            Console.WriteLine("Student deleted.");
+        }
+
+
+        static void CreateTeacher(AppDbContext db)
+        {
+            var dep = db.Departments.First();
+
+            var teacher = new Teacher
             {
-                Console.WriteLine($"{p.Id} | {p.Name} | {p.Number} | Student: {p.Student?.FirstName} {p.Student?.LastName}");
-            }
+                FirstName = "Some",
+                LastName = "New",
+                BirthDate = new DateTime(1980, 1, 1),
+                Salary = 4000,
+                DepartmentId = dep.Id,
+                Subjects = new List<Subject>(),
+                Groups = new List<Group>()
+            };
+
+            db.Teachers.Add(teacher);
+            db.SaveChanges();
+
+            Console.WriteLine("Teacher created.");
+        }
+
+        static void UpdateTeacher(AppDbContext db, int id)
+        {
+            var teacher = db.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null) return;
+
+            teacher.Salary = 5000;
+
+            db.Teachers.Update(teacher);
+            db.SaveChanges();
+
+            Console.WriteLine("Teacher updated.");
+        }
+
+        static void DeleteTeacher(AppDbContext db, int id)
+        {
+            var teacher = db.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null) return;
+
+            db.Teachers.Remove(teacher);
+            db.SaveChanges();
+
+            Console.WriteLine("Teacher deleted.");
+        }
+
+        static void CreateSubject(AppDbContext db)
+        {
+            var dep = db.Departments.First();
+
+            var subject = new Subject
+            {
+                Name = "Horeography",
+                Description = "Basic Moves",
+                DepartmentId = dep.Id,
+                Teachers = new List<Teacher>()
+            };
+
+            db.Subjects.Add(subject);
+            db.SaveChanges();
+
+            Console.WriteLine("Subject created.");
+        }
+
+        static void UpdateSubject(AppDbContext db, int id)
+        {
+            var subject = db.Subjects.FirstOrDefault(s => s.Id == id);
+
+            if (subject == null) return;
+
+            subject.Description = "Updated description";
+
+            db.Subjects.Update(subject);
+            db.SaveChanges();
+
+            Console.WriteLine("Subject updated.");
+        }
+
+        static void DeleteSubject(AppDbContext db, int id)
+        {
+            var subject = db.Subjects.FirstOrDefault(s => s.Id == id);
+
+            if (subject == null) return;
+
+            db.Subjects.Remove(subject);
+            db.SaveChanges();
+
+            Console.WriteLine("Subject deleted.");
         }
     }
 }
