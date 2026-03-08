@@ -9,18 +9,225 @@ namespace NewEF
         {
             using var db = new AppDbContext();
 
-            db.Database.EnsureCreated();
+            //InitializeDB(db);
 
-            if (!db.Departments.Any())
+            foreach (var student in db.StudentGroupViews)
             {
-                CreateSampleData(db);
+                Console.WriteLine($"{student.StudentName} | {student.GroupName}");
+            }
+        }
+
+        static void InitializeDB(AppDbContext db)
+        {
+            if (db.Departments.Any())
+            {
+                Console.WriteLine("Database already initialized.");
+                return;
             }
 
-            ReadDepartments(db);
-            ReadTeachers(db);
-            ReadStudents(db);
-            ReadPassports(db);
+            var itDepartment = new Department
+            {
+                Name = "IT Department",
+                Description = "Programming and Software Engineering",
+                Teachers = new List<Teacher>(),
+                Subjects = new List<Subject>()
+            };
+
+            var mathDepartment = new Department
+            {
+                Name = "Mathematics Department",
+                Description = "Pure and Applied Mathematics",
+                Teachers = new List<Teacher>(),
+                Subjects = new List<Subject>()
+            };
+
+            var linguistDepartment = new Department
+            {
+                Name = "Linguist Department",
+                Description = "Linguistics",
+                Teachers = new List<Teacher>(),
+                Subjects = new List<Subject>()
+            };
+
+            var csharp = new Subject
+            {
+                Name = "C#",
+                Description = ".NET and WinForms",
+                Department = itDepartment,
+                Teachers = new List<Teacher>()
+            };
+
+            var databases = new Subject
+            {
+                Name = "Databases",
+                Description = "SQL Server and EF Core",
+                Department = itDepartment,
+                Teachers = new List<Teacher>()
+            };
+
+            var algebra = new Subject
+            {
+                Name = "Algebra",
+                Description = "Linear Algebra",
+                Department = mathDepartment,
+                Teachers = new List<Teacher>()
+            };
+
+            var ukrainian = new Subject
+            {
+                Name = "Ukrainian",
+                Description = "In-depth Ukrainian",
+                Department = linguistDepartment,
+                Teachers = new List<Teacher>()
+            };
+
+            var english = new Subject
+            {
+                Name = "English",
+                Description = "In-depth English",
+                Department = linguistDepartment,
+                Teachers = new List<Teacher>()
+            };
+
+            var groupA = new Group
+            {
+                Name = "IT-101",
+                Students = new List<Student>(),
+            };
+
+            var groupB = new Group
+            {
+                Name = "MATH-202",
+                Students = new List<Student>(),
+            };
+
+            var groupC = new Group
+            {
+                Name = "DB-303",
+                Students = new List<Student>(),
+            };
+
+            var groupD = new Group
+            {
+                Name = "UKR-404",
+                Students = new List<Student>(),
+            };
+
+            var groupE = new Group
+            {
+                Name = "UKR-505",
+                Students = new List<Student>(),
+            };
+
+            var teacher1 = new Teacher
+            {
+                FirstName = "John",
+                LastName = "Smith",
+                BirthDate = new DateTime(1985, 4, 10),
+                Salary = 3000,
+                Department = itDepartment,
+                Subjects = new List<Subject> { csharp, databases },
+                Groups = new List<Group> { groupA }
+            };
+
+            var teacher2 = new Teacher
+            {
+                FirstName = "Anna",
+                LastName = "Myhailivna",
+                BirthDate = new DateTime(1990, 6, 22),
+                Salary = 2800,
+                Department = mathDepartment,
+                Subjects = new List<Subject> { algebra },
+                Groups = new List<Group> { groupB }
+            };
+
+            var teacher3 = new Teacher
+            {
+                FirstName = "Michael",
+                LastName = "Clear",
+                BirthDate = new DateTime(1990, 6, 22),
+                Salary = 2800,
+                Department = linguistDepartment,
+                Subjects = new List<Subject> { algebra },
+                Groups = new List<Group> { groupB }
+            };
+
+            var teacher4 = new Teacher
+            {
+                FirstName = "May",
+                LastName = "Brown",
+                BirthDate = new DateTime(1990, 6, 22),
+                Salary = 2800,
+                Department = linguistDepartment,
+                Subjects = new List<Subject> { algebra },
+                Groups = new List<Group> { groupB }
+            };
+
+            var student1 = new Student
+            {
+                FirstName = "Alex",
+                LastName = "Shevchenko",
+                Email = "alex@gmail.com",
+                Birthdate = new DateTime(2004, 2, 15),
+                Group = groupA
+            };
+
+            var student2 = new Student
+            {
+                FirstName = "Maria",
+                LastName = "Hvylova",
+                Email = "maria@gmail.com",
+                Birthdate = new DateTime(2005, 8, 5),
+                Group = groupA
+            };
+
+            var student3 = new Student
+            {
+                FirstName = "David",
+                LastName = "Kozak",
+                Email = "david@gmail.com",
+                Birthdate = new DateTime(2003, 11, 20),
+                Group = groupB
+            };
+
+            var student4 = new Student
+            {
+                FirstName = "Sofia",
+                LastName = "Zvychaina",
+                Email = "sofia@gmail.com",
+                Birthdate = new DateTime(2004, 2, 15),
+                Group = groupC
+            };
+
+            var student5 = new Student
+            {
+                FirstName = "Kyrylo",
+                LastName = "Mefodiyovich",
+                Email = "kyrylo@gmail.com",
+                Birthdate = new DateTime(2005, 8, 5),
+                Group = groupD
+            };
+
+            var student6 = new Student
+            {
+                FirstName = "Myhailo",
+                LastName = "Melnyk",
+                Email = "myhailo@gmail.com",
+                Birthdate = new DateTime(2003, 11, 20),
+                Group = groupE
+            };
+
+            db.Departments.AddRange(itDepartment, mathDepartment, linguistDepartment);
+            db.Subjects.AddRange(csharp, databases, algebra, ukrainian, english);
+            db.Groups.AddRange(groupA, groupB, groupC, groupD, groupE);
+            db.Teachers.AddRange(teacher1, teacher2, teacher3, teacher4);
+            db.Students.AddRange(student1, student2, student3, student4, student5, student6);
+
+            db.SaveChanges();
+
+            Console.WriteLine("Database initialized successfully.");
         }
+
         static void CreateSampleData(AppDbContext db)
         {
             var dep = new Department
@@ -74,9 +281,9 @@ namespace NewEF
                 FirstName = "Petro",
                 LastName = "Petrenko",
                 Email = "petro.petrenko@example.com",
-                Birthday = new DateTime(2005, 3, 1),
+                Birthdate = new DateTime(2005, 3, 1),
                 Scholarship = 120.50m,
-                GroupId = group.Id,   // або Group = group
+                GroupId = group.Id,
                 _attendanceForm = Student.AttendanceForm.Offline,
             };
             db.Students.Add(student);

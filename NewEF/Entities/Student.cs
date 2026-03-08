@@ -15,7 +15,7 @@ namespace NewEF.Entities
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public DateTime Birthday { get; set; }
+        public DateTime Birthdate { get; set; }
         public decimal Scholarship { get; set; }
         public int GroupId { get; set; }
         public Group Group { get; set; } = null!;
@@ -25,7 +25,7 @@ namespace NewEF.Entities
         public AttendanceForm _attendanceForm { get; set; }
         public override string ToString()
         {
-            return $"{Id}. {FirstName} {LastName} {Email} {Scholarship} {Birthday:d} {_attendanceForm} {PassportId} -- {Group.Name}";
+            return $"{Id}. {FirstName} {LastName} {Email} {Scholarship} {Birthdate:d} {_attendanceForm} {PassportId} -- {Group.Name}";
         }
     }
 }

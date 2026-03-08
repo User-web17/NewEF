@@ -19,6 +19,7 @@ namespace NewEF
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Passport> Passports { get; set; }
+        public DbSet<StudentGroupView> StudentGroupViews { get; set; }
 
         public AppDbContext()
         {
@@ -37,7 +38,11 @@ namespace NewEF
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<Student>().Property(s => s.Scholarship).HasColumnType("money");
+            modelBuilder.Entity<StudentGroupView>(sgv =>
+            {
+                sgv.ToView("vw_StudentsGroups")
+                .HasNoKey();
+            });
 
             modelBuilder.Entity<Teacher>(b =>
             {
